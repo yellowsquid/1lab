@@ -34,6 +34,7 @@ import Shake.LinkGraph
 import Shake.Markdown
 import Shake.Modules
 import Shake.Diagram
+import Shake.Digest
 import Shake.KaTeX
 import Shake.Git
 import Shake.Utils
@@ -50,6 +51,7 @@ rules :: Rules ()
 rules = do
   agdaRules
   agdaRefs <- getAgdaRefs
+  digestRules
   gitRules
   katexRules
   moduleRules

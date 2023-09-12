@@ -78,6 +78,7 @@ executable shake
     , Shake.AgdaCompile
     , Shake.AgdaRefs
     , Shake.Diagram
+    , Shake.Digest
     , Shake.Git
     , Shake.KaTeX
     , Shake.LinkGraph

@@ -45,6 +45,7 @@ import Shake.LinkReferences
 import Shake.SearchData
 import Shake.AgdaRefs
 import Shake.Options
+import Shake.Digest
 import Shake.KaTeX
 import Shake.Git
 
@@ -149,8 +150,11 @@ buildMarkdown refs modname input output = do
   (markdown, MarkdownState references dependencies) <- runWriterT (walkM patchBlock markdown)
   need dependencies
 
+  cssDigest <- getFileDigest "_build/html/css/default.css"
+  jsDigest <- getFileDigest "_build/html/main.js"
+
   text <- liftIO $ either (fail . show) pure =<<
-    runIO (renderMarkdown authors references modname markdown)
+    runIO (renderMarkdown authors references cssDigest jsDigest modname markdown)
 
   tags <- mapM (parseAgdaLink modname refs) . foldEquations False $ parseTags text
   traverse_ (checkMarkup input) tags
@@ -284,9 +288,11 @@ patchBlock h = pure h
 renderMarkdown :: PandocMonad m
                => [Text]     -- ^ List of authors
                -> [Val Text] -- ^ List of references
+               -> String     -- ^ Digest of the CSS file
+               -> String     -- ^ Digest of the JS file
                -> String     -- ^ Name of the current module
                -> Pandoc -> m Text
-renderMarkdown authors references modname markdown = do
+renderMarkdown authors references cssDigest jsDigest modname markdown = do
   template <- getTemplate templateName >>= runWithPartials . compileTemplate templateName
                 >>= either (throwError . PandocTemplateError . Text.pack) pure
 
@@ -300,6 +306,8 @@ renderMarkdown authors references modname markdown = do
       [ ("is-index",  toVal (modname == "index"))
       , ("authors",   toVal authors')
       , ("reference", toVal references)
+      , ("cssDigest", toVal $ Text.pack cssDigest)
+      , ("jsDigest",  toVal $ Text.pack jsDigest)
       ]
 
     options = def { writerTemplate = Just template
