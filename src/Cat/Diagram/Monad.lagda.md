@@ -15,7 +15,7 @@ module Cat.Diagram.Monad {o h : _} (C : Precategory o h) where
 import Cat.Reasoning C as C
 ```
 
-# Monads
+# Monads {defines="monad"}
 
 A **monad on a category** $\cC$ is one way of categorifying the
 concept of [monoid]. Specifically, rather than living in a monoidal
